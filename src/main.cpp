@@ -10,11 +10,23 @@
 #include "vex.h"
 
 using namespace vex;
+//how to run -> https://kb.vex.com/hc/en-us/articles/21412349719956-Downloading-and-Running-a-VEX-Project-in-VS-Code
 
 // A global instance of competition
 competition Competition;
 
 // define your global instances of motors and other devices here
+brain Brain;
+controller Controller1 = controller(primary);
+
+// drivetrain initialization
+motor LeftForwardDrive = motor(PORT2, ratio6_1, false);
+motor RightForwardDrive = motor(PORT3, ratio6_1, true);
+drivetrain Drivetrain = drivetrain(LeftForwardDrive, RightForwardDrive, 319.19, 317.5, 117.475, mm, 1); //change values -> probably gear ratio + wheelbase
+
+// define functions
+
+
 
 /*---------------------------------------------------------------------------*/
 /*                          Pre-Autonomous Functions                         */
@@ -58,7 +70,7 @@ void autonomous(void) {
 /*  You must modify the code to add your own robot specific commands here.   */
 /*---------------------------------------------------------------------------*/
 
-void usercontrol(void) {
+void teleop(void) {
   // User control code here, inside the loop
   while (1) {
     // This is the main execution loop for the user control program.
@@ -69,6 +81,14 @@ void usercontrol(void) {
     // Insert user code here. This is where you use the joystick values to
     // update your motors, etc.
     // ........................................................................
+
+    //drivetrain teleop code
+    LeftForwardDrive.setVelocity(Controller1.Axis3.position()+Controller1.Axis1.position(), percent);
+    RightForwardDrive.setVelocity(Controller1.Axis3.position()-Controller1.Axis1.position(), percent);
+    LeftForwardDrive.spin(forward);
+    RightForwardDrive.spin(forward);
+
+
 
     wait(20, msec); // Sleep the task for a short amount of time to
                     // prevent wasted resources.
@@ -81,10 +101,10 @@ void usercontrol(void) {
 int main() {
   // Set up callbacks for autonomous and driver control periods.
   Competition.autonomous(autonomous);
-  Competition.drivercontrol(usercontrol);
+  Competition.drivercontrol(teleop);
 
   // Run the pre-autonomous function.
-  pre_auton();
+  //pre_auton();
 
   // Prevent main from exiting with an infinite loop.
   while (true) {
